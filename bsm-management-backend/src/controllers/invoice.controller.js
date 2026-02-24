@@ -1,0 +1,69 @@
+import {
+  createInvoiceService,
+  getInvoicesByMonthService,
+  getInvoiceDetailService,
+  markInvoicePaidService// 👈 THIẾU CÁI NÀY
+} from "../services/invoice.service.js";
+
+export async function markInvoicePaid(req, res) {
+  try {
+    const ownerId = req.user.id;
+    const invoiceId = Number(req.params.id);
+
+    await markInvoicePaidService(ownerId, invoiceId);
+    res.json({ message: "Đã đánh dấu thanh toán" });
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+}
+/* =========================
+   CREATE INVOICE
+========================= */
+export async function createInvoice(req, res) {
+  try {
+    await createInvoiceService(req.body);
+    res.json({ message: "Lưu hóa đơn thành công" });
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+}
+
+/* =========================
+   GET INVOICES BY MONTH
+========================= */
+export async function getInvoicesByMonth(req, res) {
+  try {
+    const ownerId = req.user.id;
+    const { month, houseId } = req.query;
+
+    if (!month) {
+      return res.status(400).json({ message: "Thiếu month" });
+    }
+
+    const data = await getInvoicesByMonthService(
+      ownerId,
+      month,
+      houseId ? Number(houseId) : null
+    );
+
+    res.json(data);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+}
+
+
+/* =========================
+   GET INVOICE DETAIL
+========================= */
+export async function getInvoiceDetail(req, res) {
+  try {
+    const ownerId = req.user.id;
+    const invoiceId = Number(req.params.id);
+
+    const invoice = await getInvoiceDetailService(ownerId, invoiceId);
+    res.json(invoice);
+  } catch (err) {
+    res.status(404).json({ message: err.message });
+  }
+}
